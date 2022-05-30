@@ -1,12 +1,11 @@
 #include <iostream>
-#include <fstream>
 #include "matrix.h"
 
 void enterMatrix(matrix &m) {
     std::cout << "Enter elements" << std::endl;
     double elem;
-    for(int i = 0; i < m.getX(); i++) {
-        for(int j = 0; j < m.getY(); j++) {
+    for (int i = 0; i < m.getX(); i++) {
+        for (int j = 0; j < m.getY(); j++) {
             std::cin >> elem;
             m.setCell(i, j, elem);
         }
@@ -14,17 +13,15 @@ void enterMatrix(matrix &m) {
 }
 
 void process(int m, int n, int k, std::string &fileName, int p) {
+
     matrix left(m, n);
+    matrix::params = {p, fileName};
     std::cout << "Left matrix: ";
     enterMatrix(left);
     matrix right(n, k);
     std::cout << "Right matrix: ";
     enterMatrix(right);
-    std::ofstream out(fileName);
-    if(!out.is_open()) {
-        throw std::invalid_argument("Error in fileName");
-    }
-    matrix result = matrix::multiply(left, right, p, out);
+    matrix result = left * right;
     result.print(std::cout);
 }
 

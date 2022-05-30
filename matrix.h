@@ -5,14 +5,17 @@
 #include <fstream>
 #include <iostream>
 
+struct execParams {
+    int p; // thread count
+    std::string outName;
+};
+
 class matrix {
 public:
+
     matrix(int x_, int y_) : x(x_), y(y_) {
         table = std::vector<std::vector<double>>(x, std::vector<double>(y));
     }
-
-    static matrix multiply(const matrix &left, const matrix &right, int p, std::ofstream &out);
-
 
     int getX() const {
         return x;
@@ -48,6 +51,8 @@ public:
         }
     }
 
+    matrix operator*(const matrix &other) const;
+    static execParams params;
 private:
     int x;
     int y;

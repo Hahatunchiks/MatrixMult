@@ -1,6 +1,8 @@
 #include "matrix.h"
 #include <unistd.h>
 
+execParams matrix::params{};
+
 struct executorParams {
     int calculated;
     const matrix &left;
@@ -51,13 +53,13 @@ void *writeMatrix(void *args) {
     return nullptr;
 }
 
-matrix matrix::multiply(const matrix &left, const matrix &right, int p, std::ofstream &out) {
+matrix matrix::operator *(const matrix &right) const {
 
-    matrix new_matrix(left.x, right.y);
-    std::vector<pthread_t> executors(p);
-    executorParams executorParams{0, left, right, new_matrix};
+    matrix new_matrix(this->x, right.y);
+    std::vector<pthread_t> executors(params.p);
+    executorParams executorParams{0, *this, right, new_matrix};
 
-    for (int i = 0; i < p; i++) {
+    for (int i = 0; i < params.p; i++) {
         if (pthread_create(&executors[i], nullptr, calculateElem, &executorParams) !=
             0) {
             std::cerr << "Cannot create threads" << std::endl;
@@ -65,10 +67,11 @@ matrix matrix::multiply(const matrix &left, const matrix &right, int p, std::ofs
         }
     }
 
-    for (int i = 0; i < p; i++) {
+    for (int i = 0; i < params.p; i++) {
         pthread_join(executors[i], nullptr);
     }
 
+    std::ofstream out{params.outName};
     writerParams writeInfo{out, new_matrix};
     pthread_t writer;
     if (pthread_create(&writer, nullptr, writeMatrix, &writeInfo) != 0) {
